@@ -86,28 +86,28 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-  - name: 修改5G 25dB
-    working-directory: ./openwrt
-    run: |
-      EEPROM_FILE=package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin
-      EXPECTED_CONTENT=$(printf '\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B')
-      if [ ! -f "$EEPROM_FILE" ]; then
-        echo "EEPROM文件未找到，正在创建新文件"
-        mkdir -p "$(dirname "$EEPROM_FILE")"
-        touch "$EEPROM_FILE"
-        chmod 644 "$EEPROM_FILE"
-      fi
-      if [ ! -w "$EEPROM_FILE" ]; then
-        echo "错误：EEPROM文件不可写"
-        exit 1
-      fi
-      CURRENT_CONTENT=$(dd if="$EEPROM_FILE" bs=1 skip=$((0x445)) count=20 2>/dev/null || echo "")
-      if [ "$CURRENT_CONTENT" != "$EXPECTED_CONTENT" ]; then
-        printf '\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B' | dd of="$EEPROM_FILE" bs=1 seek=$((0x445)) conv=notrunc
-        echo "EEPROM文件已更新"
-      else
-        echo "EEPROM文件无需修改"
-      fi
+    - name: 修改5G 25dB
+      working-directory: ./openwrt
+      run: |
+        EEPROM_FILE=package/mtk/drivers/mt_wifi/files/mt7981-default-eeprom/MT7981_iPAiLNA_EEPROM.bin
+        EXPECTED_CONTENT=$(printf '\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B')
+        if [ ! -f "$EEPROM_FILE" ]; then
+          echo "EEPROM文件未找到，正在创建新文件"
+          mkdir -p "$(dirname "$EEPROM_FILE")"
+          touch "$EEPROM_FILE"
+          chmod 644 "$EEPROM_FILE"
+        fi
+        if [ ! -w "$EEPROM_FILE" ]; then
+          echo "错误：EEPROM文件不可写"
+          exit 1
+        fi
+        CURRENT_CONTENT=$(dd if="$EEPROM_FILE" bs=1 skip=$((0x445)) count=20 2>/dev/null || echo "")
+        if [ "$CURRENT_CONTENT" != "$EXPECTED_CONTENT" ]; then
+          printf '\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B\x2B' | dd of="$EEPROM_FILE" bs=1 seek=$((0x445)) conv=notrunc
+          echo "EEPROM文件已更新"
+        else
+          echo "EEPROM文件无需修改"
+        fi
 
     - name: Compile the firmware
       id: compile
